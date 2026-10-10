@@ -1,6 +1,6 @@
 import type {CalculatorDefinition,CalculatorKind} from "@/lib/calculators/catalog";
 export type Inputs=Record<string,number>;export type CalculationResult={label:string;value:string;detail?:string};
-const n=(x:number,d=2)=>Number.isFinite(x)?new Intl.NumberFormat("en-IN",{maximumFractionDigits:d}).format(x):"Not available";const money=(x:number)=>"₹"+n(x);const pct=(x:number)=>n(x)+"%";const g=(i:Inputs,k:string)=>Number.isFinite(i[k])?i[k]:0;const pow=(r:number,y:number)=>Math.pow(1+r/100,y);
+const n=(x:number,d=2)=>Number.isFinite(x)?new Intl.NumberFormat("en-IN",{maximumFractionDigits:d}).format(x):"Not available";const money=(x:number)=>"₹"+n(x);const pct=(x:number)=>n(x)+"%";const g=(i:Inputs,k:string,fallback=0)=>Number.isFinite(i[k])?i[k]:fallback;const pow=(r:number,y:number)=>Math.pow(1+r/100,y);
 const emi=(p:number,r:number,y:number)=>{const m=y*12,rate=r/1200;return m<=0?0:rate===0?p/m:p*rate*Math.pow(1+rate,m)/(Math.pow(1+rate,m)-1)};
 const gcd=(a:number,b:number):number=>b===0?Math.abs(a):gcd(b,a%b);const fact=(x:number)=>{if(x<0||x>170||!Number.isInteger(x))return NaN;let z=1;for(let j=2;j<=x;j++)z*=j;return z};const R=(...x:CalculationResult[])=>x;
 export function calculate(kind:CalculatorKind,i:Inputs):CalculationResult[]{const a=g(i,"a"),b=g(i,"b"),c=g(i,"c"),d=g(i,"d"),p=g(i,"principal"),r=g(i,"rate"),y=Math.max(0,g(i,"years));switch(kind){
@@ -26,7 +26,7 @@ case"goal":{const gap=Math.max(0,g(i,"final")-p),months=y*12;return R({label:"Mo
 case"dti":return R({label:"Debt-to-income ratio",value:g(i,"income")>0?pct(g(i,"obligations")/g(i,"income")*100):"Enter income above zero"});
 case"tip":{const tip=g(i,"amount")*r/100,total=g(i,"amount")+tip,people=Math.max(1,g(i,"people"));return R({label:"Tip",value:money(tip)},{label:"Total bill",value:money(total)},{label:"Per person",value:money(total/people)})}
 case"bmi":{const h=g(i,"height")/100,v=h>0?g(i,"weight")/(h*h):NaN;return R({label:"BMI",value:n(v),detail:v<18.5?"Below common adult reference":v<25?"Within common adult reference":v<30?"Above common adult reference":"High adult BMI range"})}
-case"bmr":case"tdee":{const v=10*g(i,"weight")+6.25*g(i,"height")-5*g(i,"age")+g(i,"sex");return R({label:kind==="bmr"?"Estimated BMR":"Estimated TDEE",value:n(kind==="tdee"?v*g(i,"activity"):v,0)+" kcal/day",detail:"Population estimate only."})}
+case"bmr":case"tdee":{const v=10*g(i,"weight")+6.25*g(i,"height")-5*g(i,"age")+g(i,"sex",5);return R({label:kind==="bmr"?"Estimated BMR":"Estimated TDEE",value:n(kind==="tdee"?v*g(i,"activity"):v,0)+" kcal/day",detail:"Population estimate only."})}
 case"calories":return R({label:"Daily calorie target",value:n(Math.max(0,g(i,"income")-r),0)+" kcal/day",detail:"Seek professional guidance for nutrition or medical needs."});
 case"idealweight":{const h=g(i,"height")/100;return R({label:"BMI-based reference range",value:n(18.5*h*h)+"–"+n(24.9*h*h)+" kg",detail:"Not an individual health assessment."})}
 case"pace":{const sec=g(i,"hours")*3600+g(i,"minutes")*60+g(i,"seconds"),dist=g(i,"distance");return R({label:"Pace per kilometre",value:dist>0?Math.floor(sec/dist/60)+":"+String(Math.round(sec/dist)%60).padStart(2,"0")+" min/km":"Enter positive distance"},{label:"Average speed",value:sec>0?n(dist/(sec/3600))+" km/h":"Enter duration"})}
