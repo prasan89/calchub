@@ -1,6 +1,6 @@
 "use client";
 import {useMemo,useState} from "react";
-import type {CalculatorDefinition} from "@/lib/calculators/catalog";
+import type {CalculatorDefinition} from "@/lib/calculators/catalog";import {IN,type Currency} from "@/lib/calculators/engine";
 
 type SolveFor="interest"|"principal"|"rate"|"time";
 const labelStyle:React.CSSProperties={display:"block",color:"#465a50",fontSize:".85rem",fontWeight:650,marginBottom:8};
@@ -22,7 +22,7 @@ function NumInput({label,value,onChange,suffix,prefix,disabled}:{label:string;va
   );
 }
 
-function PieChart({principal,interest}:{principal:number;interest:number}){
+function PieChart({principal,interest,currency}:{principal:number;interest:number;currency:Currency}){
   const total=principal+interest;
   if(total<=0||interest<0)return null;
   const pct=principal/total;
@@ -33,7 +33,7 @@ function PieChart({principal,interest}:{principal:number;interest:number}){
   const x2=cx+r*Math.sin(sweep),y2=cy-r*Math.cos(sweep);
   const large=pct>0.5?1:0;
   const pp=Math.round(pct*100),ip=100-pp;
-  const fmt=(x:number)=>`₹${x.toLocaleString("en-IN",{maximumFractionDigits:0})}`;
+  const fmt=(x:number)=>`${currency.sym}${x.toLocaleString(currency.locale,{maximumFractionDigits:0})}`;
   return(
     <div style={{display:"flex",gap:20,alignItems:"center",flexWrap:"wrap"}}>
       <svg width={160} height={160} viewBox="0 0 160 160" aria-hidden>
@@ -60,7 +60,7 @@ function PieChart({principal,interest}:{principal:number;interest:number}){
   );
 }
 
-export default function SimpleInterestCalculator({calculator}:{calculator:CalculatorDefinition}){
+export default function SimpleInterestCalculator({calculator,currency=IN}:{calculator:CalculatorDefinition;currency?:Currency}){
   const [solveFor,setSolveFor]=useState<SolveFor>("interest");
   const [rateUnit,setRateUnit]=useState<"year"|"month">("year");
   const [principal,setPrincipal]=useState("10000");
@@ -93,7 +93,7 @@ export default function SimpleInterestCalculator({calculator}:{calculator:Calcul
     return{solved:T,principal:p,interest:ti,time:T,rate:annualRate(parseFloat(rate)||0),label:"Time"};
   },[solveFor,rateUnit,principal,rate,years,targetInterest]);
 
-  const fmt=(x:number)=>`₹${x.toLocaleString("en-IN",{maximumFractionDigits:2})}`;
+  const fmt=(x:number)=>`${currency.sym}${x.toLocaleString(currency.locale,{maximumFractionDigits:2})}`;
   const n=(x:number,d=2)=>Number.isFinite(x)?x.toFixed(d):"—";
 
   const tabs:Array<{key:SolveFor;label:string}> = [
@@ -118,7 +118,7 @@ export default function SimpleInterestCalculator({calculator}:{calculator:Calcul
       </div>
 
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(min(100%,200px),1fr))",gap:18}}>
-        <NumInput label="Principal" value={principal} onChange={setPrincipal} prefix="₹"
+        <NumInput label="Principal" value={principal} onChange={setPrincipal} prefix={currency.sym}
           disabled={solveFor==="principal"}/>
 
         {/* Rate field + per-month toggle */}
@@ -142,7 +142,7 @@ export default function SimpleInterestCalculator({calculator}:{calculator:Calcul
 
         <NumInput label="Time" value={years} onChange={setYears} suffix="years"
           disabled={solveFor==="time"}/>
-        <NumInput label="Interest Amount" value={targetInterest} onChange={setTargetInterest} prefix="₹"
+        <NumInput label="Interest Amount" value={targetInterest} onChange={setTargetInterest} prefix={currency.sym}
           disabled={solveFor==="interest"}/>
       </div>
 
@@ -171,7 +171,7 @@ export default function SimpleInterestCalculator({calculator}:{calculator:Calcul
               <div className="result-value">{n(result.time)} years</div>
             </div>}
           </div>
-          <PieChart principal={result.principal} interest={result.interest}/>
+          <PieChart principal={result.principal} interest={result.interest} currency={currency}/>
           {/* Year-by-year table */}
           {solveFor==="interest"&&result.time>0&&result.time<=30&&(
             <div style={{marginTop:20}}>

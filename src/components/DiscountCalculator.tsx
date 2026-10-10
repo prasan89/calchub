@@ -1,6 +1,6 @@
 "use client";
 import {useMemo,useState} from "react";
-import type {CalculatorDefinition} from "@/lib/calculators/catalog";
+import type {CalculatorDefinition} from "@/lib/calculators/catalog";import {IN,type Currency} from "@/lib/calculators/engine";
 
 type Mode="percent"|"fixed"|"solve";
 const labelStyle:React.CSSProperties={display:"block",color:"#465a50",fontSize:".85rem",fontWeight:650,marginBottom:8};
@@ -22,7 +22,7 @@ function NumInput({label,value,onChange,suffix,prefix,disabled}:{label:string;va
   );
 }
 
-export default function DiscountCalculator({calculator}:{calculator:CalculatorDefinition}){
+export default function DiscountCalculator({calculator,currency=IN}:{calculator:CalculatorDefinition;currency?:Currency}){
   const [mode,setMode]=useState<Mode>("percent");
   // percent mode
   const [origPrice,setOrigPrice]=useState("1000");
@@ -52,7 +52,7 @@ export default function DiscountCalculator({calculator}:{calculator:CalculatorDe
     return{original,saved,final:fp,pct};
   },[mode,origPrice,discountPct,origFixed,discountAmt,finalPrice,pctForSolve]);
 
-  const fmt=(x:number)=>Number.isFinite(x)?`₹${x.toLocaleString("en-IN",{maximumFractionDigits:2})}`:"—";
+  const fmt=(x:number)=>Number.isFinite(x)?`${currency.sym}${x.toLocaleString(currency.locale,{maximumFractionDigits:2})}`:"—";
   const n=(x:number)=>Number.isFinite(x)?x.toFixed(2):"—";
 
   const tabs:Array<{key:Mode;label:string}> = [
@@ -77,19 +77,19 @@ export default function DiscountCalculator({calculator}:{calculator:CalculatorDe
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(min(100%,200px),1fr))",gap:18}}>
         {mode==="percent"&&(
           <>
-            <NumInput label="Original Price" value={origPrice} onChange={setOrigPrice} prefix="₹"/>
+            <NumInput label="Original Price" value={origPrice} onChange={setOrigPrice} prefix={currency.sym}/>
             <NumInput label="Discount" value={discountPct} onChange={setDiscountPct} suffix="%"/>
           </>
         )}
         {mode==="fixed"&&(
           <>
-            <NumInput label="Original Price" value={origFixed} onChange={setOrigFixed} prefix="₹"/>
-            <NumInput label="Discount Amount" value={discountAmt} onChange={setDiscountAmt} prefix="₹"/>
+            <NumInput label="Original Price" value={origFixed} onChange={setOrigFixed} prefix={currency.sym}/>
+            <NumInput label="Discount Amount" value={discountAmt} onChange={setDiscountAmt} prefix={currency.sym}/>
           </>
         )}
         {mode==="solve"&&(
           <>
-            <NumInput label="Sale Price (Final)" value={finalPrice} onChange={setFinalPrice} prefix="₹"/>
+            <NumInput label="Sale Price (Final)" value={finalPrice} onChange={setFinalPrice} prefix={currency.sym}/>
             <NumInput label="Discount Applied" value={pctForSolve} onChange={setPctForSolve} suffix="%"/>
           </>
         )}

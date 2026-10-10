@@ -1,6 +1,6 @@
 "use client";
 import {useMemo,useState} from "react";
-import type {CalculatorDefinition} from "@/lib/calculators/catalog";
+import type {CalculatorDefinition} from "@/lib/calculators/catalog";import {IN,type Currency} from "@/lib/calculators/engine";
 
 type SolveFor="margin"|"revenue"|"cost"|"profit";
 const labelStyle:React.CSSProperties={display:"block",color:"#465a50",fontSize:".85rem",fontWeight:650,marginBottom:8};
@@ -22,7 +22,7 @@ function NumInput({label,value,onChange,suffix,prefix,disabled}:{label:string;va
   );
 }
 
-function PieChart({cost,profit}:{cost:number;profit:number}){
+function PieChart({cost,profit,currency}:{cost:number;profit:number;currency:Currency}){
   const total=cost+profit;
   if(total<=0||profit<0)return null;
   const pct=cost/total;
@@ -33,7 +33,7 @@ function PieChart({cost,profit}:{cost:number;profit:number}){
   const x2=cx+r*Math.sin(sweep),y2=cy-r*Math.cos(sweep);
   const large=pct>0.5?1:0;
   const cp=Math.round(pct*100),pp=100-cp;
-  const fmt=(x:number)=>`₹${x.toLocaleString("en-IN",{maximumFractionDigits:0})}`;
+  const fmt=(x:number)=>`${currency.sym}${x.toLocaleString(currency.locale,{maximumFractionDigits:0})}`;
   return(
     <div style={{display:"flex",gap:20,alignItems:"center",flexWrap:"wrap"}}>
       <svg width={160} height={160} viewBox="0 0 160 160" aria-hidden>
@@ -60,7 +60,7 @@ function PieChart({cost,profit}:{cost:number;profit:number}){
   );
 }
 
-export default function MarginCalculator({calculator}:{calculator:CalculatorDefinition}){
+export default function MarginCalculator({calculator,currency=IN}:{calculator:CalculatorDefinition;currency?:Currency}){
   const [solveFor,setSolveFor]=useState<SolveFor>("margin");
   const [cost,setCost]=useState("500");
   const [revenue,setRevenue]=useState("800");
@@ -90,7 +90,7 @@ export default function MarginCalculator({calculator}:{calculator:CalculatorDefi
     return{cost:c,revenue:rev2,profit:prof,margin:gm,markup};
   },[solveFor,cost,revenue,marginPct,profit]);
 
-  const fmt=(x:number)=>Number.isFinite(x)?`₹${x.toLocaleString("en-IN",{maximumFractionDigits:2})}`:"—";
+  const fmt=(x:number)=>Number.isFinite(x)?`${currency.sym}${x.toLocaleString(currency.locale,{maximumFractionDigits:2})}`:"—";
   const n=(x:number,d=2)=>Number.isFinite(x)?x.toFixed(d):"—";
 
   const tabs:Array<{key:SolveFor;label:string}> = [
@@ -114,13 +114,13 @@ export default function MarginCalculator({calculator}:{calculator:CalculatorDefi
       </div>
 
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(min(100%,200px),1fr))",gap:18}}>
-        <NumInput label="Cost" value={cost} onChange={setCost} prefix="₹"
+        <NumInput label="Cost" value={cost} onChange={setCost} prefix={currency.sym}
           disabled={solveFor==="cost"}/>
-        <NumInput label="Revenue (Selling Price)" value={revenue} onChange={setRevenue} prefix="₹"
+        <NumInput label="Revenue (Selling Price)" value={revenue} onChange={setRevenue} prefix={currency.sym}
           disabled={solveFor==="revenue"||solveFor==="profit"}/>
         <NumInput label="Gross Margin %" value={marginPct} onChange={setMarginPct} suffix="%"
           disabled={solveFor==="margin"||solveFor==="profit"}/>
-        <NumInput label="Profit" value={profit} onChange={setProfit} prefix="₹"
+        <NumInput label="Profit" value={profit} onChange={setProfit} prefix={currency.sym}
           disabled={solveFor!=="profit"}/>
       </div>
 
@@ -147,7 +147,7 @@ export default function MarginCalculator({calculator}:{calculator:CalculatorDefi
               <div className="result-value">{fmt(result.revenue)}</div>
             </div>
           </div>
-          <PieChart cost={result.cost} profit={result.profit}/>
+          <PieChart cost={result.cost} profit={result.profit} currency={currency}/>
         </div>
       )}
       <p style={{fontSize:12,lineHeight:1.6,color:"var(--muted)",marginTop:16}}>Gross margin = Profit ÷ Revenue × 100. Markup = Profit ÷ Cost × 100.</p>

@@ -1,9 +1,21 @@
 import type {CalculatorDefinition,CalculatorKind} from "@/lib/calculators/catalog";
 export type Inputs=Record<string,number>;export type CalculationResult={label:string;value:string;detail?:string};
-const n=(x:number,d=2)=>Number.isFinite(x)?new Intl.NumberFormat("en-IN",{maximumFractionDigits:d}).format(x):"Not available";const money=(x:number)=>"₹"+n(x);const pct=(x:number)=>n(x)+"%";const g=(i:Inputs,k:string,fallback=0)=>Number.isFinite(i[k])?i[k]:fallback;const pow=(r:number,y:number)=>Math.pow(1+r/100,y);
+export type Currency={sym:string;locale:string};
+export const IN:Currency={sym:"₹",locale:"en-IN"};
+export const US:Currency={sym:"$",locale:"en-US"};
+function mkFmt(cur:Currency){
+  const n=(x:number,d=2)=>Number.isFinite(x)?new Intl.NumberFormat(cur.locale,{maximumFractionDigits:d}).format(x):"Not available";
+  const money=(x:number)=>cur.sym+n(x);
+  const pct=(x:number)=>n(x)+"%";
+  return{n,money,pct};
+}
+const g=(i:Inputs,k:string,fallback=0)=>Number.isFinite(i[k])?i[k]:fallback;
+const pow=(r:number,y:number)=>Math.pow(1+r/100,y);
 const emi=(p:number,r:number,y:number)=>{const m=y*12,rate=r/1200;return m<=0?0:rate===0?p/m:p*rate*Math.pow(1+rate,m)/(Math.pow(1+rate,m)-1)};
 const gcd=(a:number,b:number):number=>b===0?Math.abs(a):gcd(b,a%b);const fact=(x:number)=>{if(x<0||x>170||!Number.isInteger(x))return NaN;let z=1;for(let j=2;j<=x;j++)z*=j;return z};const R=(...x:CalculationResult[])=>x;
-export function calculate(kind:CalculatorKind,i:Inputs):CalculationResult[]{const a=g(i,"a"),b=g(i,"b"),c=g(i,"c"),d=g(i,"d"),p=g(i,"principal"),r=g(i,"rate"),y=Math.max(0,g(i,"years"));switch(kind){
+export function calculate(kind:CalculatorKind,i:Inputs,cur:Currency=IN):CalculationResult[]{
+const {n,money,pct}=mkFmt(cur);
+const a=g(i,"a"),b=g(i,"b"),c=g(i,"c"),d=g(i,"d"),p=g(i,"principal"),r=g(i,"rate"),y=Math.max(0,g(i,"years"));switch(kind){
 case"emi":{const m=emi(p,r,y),total=m*y*12;return R({label:"Monthly payment",value:money(m)},{label:"Total interest",value:money(total-p)},{label:"Total repayment",value:money(total)})}
 case"interest":{const v=p*r*y/100;return R({label:"Interest",value:money(v)},{label:"Final amount",value:money(p+v)})}
 case"compound":{const v=p*pow(r,y);return R({label:"Future value",value:money(v)},{label:"Growth",value:money(v-p)},{label:"Note",value:"Compounds annually"})}
@@ -11,7 +23,7 @@ case"sip":{const m=g(i,"monthly"),count=y*12,rate=r/1200,v=rate===0?m*count:m*((
 case"gst":{const tax=g(i,"amount")*r/100;return R({label:"GST amount",value:money(tax)},{label:"Total with GST",value:money(g(i,"amount")+tax)})}
 case"discount":{const saved=g(i,"amount")*r/100;return R({label:"You save",value:money(saved)},{label:"Sale price",value:money(g(i,"amount")-saved)})}
 case"tax":{let left=Math.max(0,g(i,"income")),tax=0;for(const [band,rate] of [[300000,0],[300000,.05],[300000,.1],[300000,.15],[Infinity,.2]] as const){const amt=Math.min(left,band);tax+=amt*rate;left-=amt}return R({label:"Illustrative tax estimate",value:money(tax),detail:"Simplified illustration only, not official tax advice."},{label:"After estimate",value:money(g(i,"income")-tax)})}
-case"salary":{const cur=g(i,"amount"),inc=cur*r/100;return R({label:"Revised amount",value:money(cur+inc)},{label:"Increase",value:money(inc)},{label:"Hike",value:pct(r)})}
+case"salary":{const cur2=g(i,"amount"),inc=cur2*r/100;return R({label:"Revised amount",value:money(cur2+inc)},{label:"Increase",value:money(inc)},{label:"Hike",value:pct(r)})}
 case"hourlypay":{const weekly=g(i,"amount")*g(i,"hours"),annual=weekly*g(i,"weeks");return R({label:"Weekly gross pay",value:money(weekly)},{label:"Average monthly gross pay",value:money(annual/12)},{label:"Annual gross pay",value:money(annual),detail:"Before taxes, unpaid leave and deductions."})}
 case"rentbuy":{const rentTotal=g(i,"rent")*12*y;const resale=p*pow(r,y);const ownershipNet=p+g(i,"amount")*12*y-resale;const delta=rentTotal-ownershipNet;return R({label:"Rent paid over period",value:money(rentTotal),detail:"Assumes monthly rent stays constant."},{label:"Estimated net ownership cost",value:money(ownershipNet),detail:"Purchase price + owner costs − estimated resale value."},{label:"Lower-cost option in this model",value:Math.abs(delta)<1?"Similar estimated cost":delta>0?"Buying by "+money(delta):"Renting by "+money(-delta),detail:"Excludes mortgage interest, transaction costs, taxes, rent increases and opportunity cost."})}
 case"cagr":{const end=g(i,"final");return R({label:"CAGR",value:p>0&&y>0&&end>=0?pct((Math.pow(end/p,1/y)-1)*100):"Enter positive start value and years"})}
@@ -55,23 +67,39 @@ case"probability":return R({label:"Probability",value:b>0?pct(a/b*100):"Total ou
 case"permutation":case"combination":{const nn=Math.round(a),rr=Math.round(b);if(rr>nn||rr<0)return R({label:"Result",value:"Require 0 ≤ r ≤ n"});const v=kind==="permutation"?fact(nn)/fact(nn-rr):fact(nn)/(fact(rr)*fact(nn-rr));return R({label:kind==="permutation"?"Permutations":"Combinations",value:n(v,0)})}
 case"gcd":{const v=gcd(Math.round(a),Math.round(b));return R({label:"GCD",value:n(v,0)},{label:"LCM",value:v?n(Math.abs(a*b)/v,0):"0"})}
 case"quadratic":{if(a===0)return R({label:"Error",value:"Coefficient a cannot be zero"});const disc=b*b-4*a*c;return disc>=0?R({label:"Root 1",value:n((-b+Math.sqrt(disc))/(2*a))},{label:"Root 2",value:n((-b-Math.sqrt(disc))/(2*a))}):R({label:"Complex roots",value:n(-b/(2*a))+" ± "+n(Math.sqrt(-disc)/(2*Math.abs(a)))+"i"})}
-case"speed":{const h=g(i,"hours");return R({label:"Average speed",value:h>0?n(g(i,"distance")/h)+" km/h":"Time must be positive"})}
+case"speed":{const h=g(i,"hours"),isUS=cur.locale==="en-US";return R({label:isUS?"Average speed":"Average speed",value:h>0?n(g(i,"distance")/h)+(isUS?" mph":" km/h"):"Time must be positive"})}
 case"age":return R({label:"Approximate age",value:Math.max(0,new Date().getFullYear()-g(i,"years"))+" years",detail:"Use a full birth date for exact age."});
-case"datediff":return R({label:"Selected date",value:new Date(Date.now()+g(i,"dateOffset")*86400000).toLocaleDateString("en-IN")},{label:"Days from today",value:n(g(i,"dateOffset"),0)});
+case"datediff":return R({label:"Selected date",value:new Date(Date.now()+g(i,"dateOffset")*86400000).toLocaleDateString(cur.locale)},{label:"Days from today",value:n(g(i,"dateOffset"),0)});
 case"duration":{const mins=(g(i,"endHour")*60+g(i,"endMinute"))-(g(i,"hours")*60+g(i,"minutes"));return R({label:"Duration",value:Math.floor(Math.abs(mins)/60)+" h "+Math.abs(mins)%60+" min"},{label:"Total minutes",value:n(Math.abs(mins),0)})}
 case"convert":{const amount=g(i,"amount");return R({label:"Centimetres / minutes",value:n(amount*100)},{label:"Feet / decimal conversion",value:n(amount*3.28084),detail:"Starter converter interprets input as metres; unit-specific conversion is planned."})}
 case"temperature":{const t=g(i,"amount");return R({label:"Fahrenheit",value:n(t*9/5+32)+" °F"},{label:"Kelvin",value:n(t+273.15)+" K"})}
-case"fuel":{const litres=g(i,"fuel")>0?g(i,"distance")/g(i,"fuel"):0;return R({label:"Fuel needed",value:n(litres)+" litres"},{label:"Trip cost",value:money(litres*r)})}
+case"fuel":{
+  const isUS=cur.locale==="en-US";
+  if(isUS){
+    // US: input distance miles, efficiency MPG → gallons needed
+    const gallons=g(i,"fuel")>0?g(i,"distance")/g(i,"fuel"):0;
+    return R({label:"Fuel needed",value:n(gallons)+" gallons"},{label:"Trip cost",value:money(gallons*r)});
+  }
+  const litres=g(i,"fuel")>0?g(i,"distance")/g(i,"fuel"):0;
+  return R({label:"Fuel needed",value:n(litres)+" litres"},{label:"Trip cost",value:money(litres*r)});
+}
 case"electricity":{const kwh=g(i,"power")/1000*g(i,"hours")*30;return R({label:"Monthly energy",value:n(kwh)+" kWh"},{label:"Monthly cost",value:money(kwh*r)})}
 case"paint":{const l=g(i,"area")*g(i,"coats")/Math.max(.01,g(i,"coverage"));return R({label:"Paint needed",value:n(l)+" litres"},{label:"Suggested purchase",value:Math.ceil(l)+" litres"})}
 case"tile":{const count=Math.ceil(g(i,"area")/Math.max(.0001,g(i,"tile")));return R({label:"Tiles including 10% spare",value:n(Math.ceil(count*1.1),0)},{label:"Base count",value:n(count,0)})}
-case"concrete":{const v=g(i,"a")*g(i,"b")*g(i,"c");return R({label:"Concrete volume",value:n(v)+" m³"},{label:"With 10% allowance",value:n(v*1.1)+" m³"})}
-case"pregnancy":{const lmp=new Date(Date.now()+g(i,"dateOffset")*86400000);const due=new Date(lmp.getTime()+280*86400000);return R({label:"Estimated due date",value:due.toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"})},{label:"Estimated gestational length",value:"40 weeks from last menstrual period",detail:"This is an estimate, not medical advice. A clinician or ultrasound may provide a different date."})}
-case"sleep":{const bedtime=new Date();bedtime.setHours(g(i,"hours"),g(i,"minutes"),0,0);const wake=(cycles:number)=>new Date(bedtime.getTime()+(14+cycles*90)*60000).toLocaleTimeString("en-IN",{hour:"numeric",minute:"2-digit"});const selected=Math.max(1,Math.min(12,Math.round(g(i,"cycles"))));return R({label:"Wake after selected cycles",value:wake(selected),detail:selected+" × 90-minute cycles plus 14 minutes to settle"},{label:"After 4 cycles",value:wake(4)},{label:"After 6 cycles",value:wake(6)})}
+case"concrete":{
+  const v=g(i,"a")*g(i,"b")*g(i,"c");
+  const isUS=cur.locale==="en-US";
+  const yd=v/0.764555; // m³ → cubic yards
+  return isUS
+    ?R({label:"Concrete volume",value:n(yd)+" yd³"},{label:"With 10% allowance",value:n(yd*1.1)+" yd³"})
+    :R({label:"Concrete volume",value:n(v)+" m³"},{label:"With 10% allowance",value:n(v*1.1)+" m³"});
+}
+case"pregnancy":{const lmp=new Date(Date.now()+g(i,"dateOffset")*86400000);const due=new Date(lmp.getTime()+280*86400000);return R({label:"Estimated due date",value:due.toLocaleDateString(cur.locale,{day:"numeric",month:"long",year:"numeric"})},{label:"Estimated gestational length",value:"40 weeks from last menstrual period",detail:"This is an estimate, not medical advice. A clinician or ultrasound may provide a different date."})}
+case"sleep":{const bedtime=new Date();bedtime.setHours(g(i,"hours"),g(i,"minutes"),0,0);const wake=(cycles:number)=>new Date(bedtime.getTime()+(14+cycles*90)*60000).toLocaleTimeString(cur.locale,{hour:"numeric",minute:"2-digit"});const selected=Math.max(1,Math.min(12,Math.round(g(i,"cycles"))));return R({label:"Wake after selected cycles",value:wake(selected),detail:selected+" × 90-minute cycles plus 14 minutes to settle"},{label:"After 4 cycles",value:wake(4)},{label:"After 6 cycles",value:wake(6)})}
 case"hoursconvert":{const h=g(i,"amount");return R({label:"Minutes",value:n(h*60)},{label:"Seconds",value:n(h*3600)},{label:"Milliseconds",value:n(h*3600000,0)})}
 case"storageconvert":{const gb=g(i,"amount");return R({label:"Megabytes",value:n(gb*1000)},{label:"Kilobytes",value:n(gb*1_000_000,0)},{label:"Bytes",value:n(gb*1_000_000_000,0),detail:"Uses decimal SI units (1 GB = 1,000,000,000 bytes)."})}
 case"lengthconvert":{const m=g(i,"amount");return R({label:"Centimetres",value:n(m*100)+" cm"},{label:"Kilometres",value:n(m/1000)+" km"},{label:"Feet",value:n(m*3.280839895)+" ft"},{label:"Inches",value:n(m*39.37007874)+" in"})}
 case"weightconvert":{const kg=g(i,"amount");return R({label:"Grams",value:n(kg*1000)+" g"},{label:"Pounds",value:n(kg*2.20462262)+" lb"},{label:"Ounces",value:n(kg*35.27396195)+" oz"})}
 case"loan":return R({label:"Use the loan calculator above",value:"Rendered by custom component."});
 default:return R({label:"Result",value:"Calculator formula not available."})}}
-export function calculateDefinition(definition:CalculatorDefinition,input:Inputs){return calculate(definition.kind,input)}
+export function calculateDefinition(definition:CalculatorDefinition,input:Inputs,cur:Currency=IN){return calculate(definition.kind,input,cur)}

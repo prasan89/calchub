@@ -1,6 +1,6 @@
 "use client";
 import {useMemo,useState} from "react";
-import type {CalculatorDefinition} from "@/lib/calculators/catalog";
+import type {CalculatorDefinition} from "@/lib/calculators/catalog";import {IN,type Currency} from "@/lib/calculators/engine";
 
 type Mode="amortized"|"deferred"|"bond";
 type CompoundKey="annually"|"semi-annually"|"quarterly"|"monthly"|"semi-monthly"|"biweekly"|"weekly"|"daily"|"continuously";
@@ -31,8 +31,7 @@ const COMP_LABELS:Record<CompoundKey,string>={
   "weekly":"Weekly","daily":"Daily","continuously":"Continuously"
 };
 
-const fmt=new Intl.NumberFormat("en-IN",{maximumFractionDigits:2});
-const money=(x:number)=>Number.isFinite(x)?"₹"+fmt.format(x):"—";
+function makeFmt(currency:Currency){const fmt=new Intl.NumberFormat(currency.locale,{maximumFractionDigits:2});return(x:number)=>Number.isFinite(x)?currency.sym+fmt.format(x):"—";}
 
 function effectiveRatePerPeriod(annualRate:number,compKey:CompoundKey,payPerYear:number):number{
   const r=annualRate/100;
@@ -162,7 +161,8 @@ const tableBtnStyle:React.CSSProperties={
 const thStyle:React.CSSProperties={padding:"10px 14px",textAlign:"right",fontWeight:750,color:"var(--muted)",whiteSpace:"nowrap"};
 const tdStyle:React.CSSProperties={padding:"10px 14px",textAlign:"right"};
 
-export default function LoanCalculator({calculator}:{calculator:CalculatorDefinition}){
+export default function LoanCalculator({calculator,currency=IN}:{calculator:CalculatorDefinition;currency?:Currency}){
+  const money=makeFmt(currency);
   const [mode,setMode]=useState<Mode>("amortized");
   const [principal,setPrincipal]=useState("2500000");
   const [termYears,setTermYears]=useState("20");
@@ -255,9 +255,9 @@ export default function LoanCalculator({calculator}:{calculator:CalculatorDefini
       {/* Inputs */}
       <div style={inputGrid}>
         {mode==="bond"?(
-          <NumInput label="Predetermined Due Amount" value={dueAmount} onChange={setDueAmount} suffix="₹"/>
+          <NumInput label="Predetermined Due Amount" value={dueAmount} onChange={setDueAmount} suffix={currency.sym}/>
         ):(
-          <NumInput label="Loan Amount" value={principal} onChange={setPrincipal} suffix="₹"/>
+          <NumInput label="Loan Amount" value={principal} onChange={setPrincipal} suffix={currency.sym}/>
         )}
         <label style={{display:"block"}}>
           <span style={{display:"block",color:"#465a50",fontSize:".85rem",fontWeight:650,marginBottom:8}}>Loan Term</span>

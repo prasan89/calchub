@@ -1,6 +1,6 @@
 "use client";
 import {useMemo,useState} from "react";
-import type {CalculatorDefinition} from "@/lib/calculators/catalog";
+import type {CalculatorDefinition} from "@/lib/calculators/catalog";import {IN,type Currency} from "@/lib/calculators/engine";
 
 const todayStr=()=>new Date().toISOString().slice(0,10);
 const labelStyle:React.CSSProperties={display:"block",color:"#465a50",fontSize:".85rem",fontWeight:650,marginBottom:8};
@@ -21,7 +21,7 @@ function NumInput({label,value,onChange,suffix,prefix}:{label:string;value:strin
   );
 }
 
-function PieChart({principal,gain}:{principal:number;gain:number}){
+function PieChart({principal,gain,currency}:{principal:number;gain:number;currency:Currency}){
   const total=principal+gain;
   if(total<=0)return null;
   const pct=principal/total;
@@ -30,7 +30,7 @@ function PieChart({principal,gain}:{principal:number;gain:number}){
   const x1=cx+r*Math.sin(0),y1=cy-r*Math.cos(0);
   const x2=cx+r*Math.sin(sweep),y2=cy-r*Math.cos(sweep);
   const large=pct>0.5?1:0;
-  const fmt=(n:number)=>`₹${n.toLocaleString("en-IN",{maximumFractionDigits:0})}`;
+  const fmt=(n:number)=>`${currency.sym}${n.toLocaleString(currency.locale,{maximumFractionDigits:0})}`;
   const pp=Math.round(pct*100),gp=100-pp;
   return(
     <svg width={180} height={180} viewBox="0 0 180 180" aria-hidden>
@@ -55,7 +55,7 @@ function PieChart({principal,gain}:{principal:number;gain:number}){
   );
 }
 
-export default function RoiCalculator({calculator}:{calculator:CalculatorDefinition}){
+export default function RoiCalculator({calculator,currency=IN}:{calculator:CalculatorDefinition;currency?:Currency}){
   const [useDate,setUseDate]=useState(false);
   const [invested,setInvested]=useState("10000");
   const [returned,setReturned]=useState("15000");
@@ -79,13 +79,13 @@ export default function RoiCalculator({calculator}:{calculator:CalculatorDefinit
     return{gain,roi,annualized,inv,ret};
   },[invested,returned,computedYears]);
 
-  const f=(n:number)=>n.toLocaleString("en-IN",{maximumFractionDigits:2});
+  const f=(n:number)=>n.toLocaleString(currency.locale,{maximumFractionDigits:2});
 
   return(
     <section className="surface" style={{padding:28}} aria-label="ROI calculator">
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(min(100%,220px),1fr))",gap:18}}>
-        <NumInput label="Amount Invested" value={invested} onChange={setInvested} prefix="₹"/>
-        <NumInput label="Amount Returned" value={returned} onChange={setReturned} prefix="₹"/>
+        <NumInput label="Amount Invested" value={invested} onChange={setInvested} prefix={currency.sym}/>
+        <NumInput label="Amount Returned" value={returned} onChange={setReturned} prefix={currency.sym}/>
       </div>
 
       {/* Investment length */}
@@ -117,12 +117,12 @@ export default function RoiCalculator({calculator}:{calculator:CalculatorDefinit
         <div style={{marginTop:24,background:"var(--wash)",border:"1px solid #dcebe1",borderRadius:14,padding:22}}>
           <div className="eyebrow" style={{marginBottom:16}}>Results</div>
           <div style={{display:"flex",gap:28,flexWrap:"wrap",alignItems:"flex-start"}}>
-            <PieChart principal={result.inv} gain={Math.max(0,result.gain)}/>
+            <PieChart principal={result.inv} gain={Math.max(0,result.gain)} currency={currency}/>
             <div style={{flex:1,minWidth:200,display:"flex",flexDirection:"column",gap:18}}>
               <div>
                 <div style={{fontSize:13,color:"var(--muted)",fontWeight:650,marginBottom:6}}>Investment Gain</div>
                 <div className="result-value" style={{color:result.gain>=0?"#27ae60":"#c0392b"}}>
-                  {result.gain>=0?"":"−"}₹{f(Math.abs(result.gain))}
+                  {result.gain>=0?"":"−"}{currency.sym}{f(Math.abs(result.gain))}
                 </div>
               </div>
               <div>
