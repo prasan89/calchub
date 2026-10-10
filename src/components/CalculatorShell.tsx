@@ -59,7 +59,7 @@ const INDIA_ONLY=new Set([
 ]);
 
 export default function CalculatorShell({calculator}:{calculator:CalculatorDefinition}){
-  const [country,setCountry]=useState<"india"|"usa">("india");
+  const [country,setCountry]=useState<"india"|"usa">("usa");
   const currency:Currency=country==="usa"?US:IN;
   const Custom=CUSTOM[calculator.slug];
   const showSwitcher=!INDIA_ONLY.has(calculator.slug);

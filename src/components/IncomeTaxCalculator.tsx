@@ -569,7 +569,7 @@ function ResultPanel({accent,rows,computation,slabBreakdown,totalTax,grossIncome
 //  Root component — country switcher
 // ════════════════════════════════════════════════════════════════════════════
 export default function IncomeTaxCalculator({calculator}:{calculator:CalculatorDefinition}){
-  const [country,setCountry]=useState<"india"|"usa">("india");
+  const [country,setCountry]=useState<"india"|"usa">("usa");
   void calculator;
   return(
     <section className="surface" style={{padding:28}} aria-label="Income tax calculator">
