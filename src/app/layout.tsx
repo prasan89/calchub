@@ -66,31 +66,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <a
-          href="#main-content"
-          style={{
-            position: "absolute",
-            top: "-40px",
-            left: 0,
-            background: "#176b4d",
-            color: "white",
-            padding: "8px 16px",
-            zIndex: 100,
-            borderRadius: "0 0 6px 0",
-            fontWeight: 700,
-            fontSize: 14,
-            textDecoration: "none",
-            transition: "top 0.2s",
-          }}
-          onFocus={(e) => {
-            (e.currentTarget as HTMLAnchorElement).style.top = "0";
-          }}
-          onBlur={(e) => {
-            (e.currentTarget as HTMLAnchorElement).style.top = "-40px";
-          }}
-        >
-          Skip to main content
-        </a>
+        <a href="#main-content" className="skip-link">Skip to main content</a>
         <header
           style={{
             borderBottom: "1px solid var(--line)",
