@@ -78,7 +78,6 @@ const seeds:Seed[]=[
 ["paint-calculator","Paint Calculator","Everyday","paint","Estimate paint quantity for a surface."],
 ["tile-calculator","Tile Calculator","Everyday","tile","Estimate tile count including spare allowance."],
 ["concrete-calculator","Concrete Calculator","Everyday","concrete","Estimate concrete volume for a rectangular slab."],
-["speed-distance-time-calculator","Speed Distance Time Calculator","Math","speed","Calculate average speed from distance and time."],
 ["bmi-ratio-calculator","Unit Ratio Calculator","Everyday","ratio","Compare two quantities and calculate their ratio."]
 ];
 const field=(key:string,label:string,defaultValue:number,suffix?:string,step=1,min=0):Field=>({key,label,defaultValue,suffix,step,min});
