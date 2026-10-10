@@ -58,5 +58,10 @@ case"electricity":{const kwh=g(i,"power")/1000*g(i,"hours")*30;return R({label:"
 case"paint":{const l=g(i,"area")*g(i,"coats")/Math.max(.01,g(i,"coverage"));return R({label:"Paint needed",value:n(l)+" litres"},{label:"Suggested purchase",value:Math.ceil(l)+" litres"})}
 case"tile":{const count=Math.ceil(g(i,"area")/Math.max(.0001,g(i,"tile")));return R({label:"Tiles including 10% spare",value:n(Math.ceil(count*1.1),0)},{label:"Base count",value:n(count,0)})}
 case"concrete":{const v=g(i,"a")*g(i,"b")*g(i,"c");return R({label:"Concrete volume",value:n(v)+" m³"},{label:"With 10% allowance",value:n(v*1.1)+" m³"})}
+case"pregnancy":{const lmp=new Date(Date.now()+g(i,"dateOffset")*86400000);const due=new Date(lmp.getTime()+280*86400000);return R({label:"Estimated due date",value:due.toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"})},{label:"Estimated gestational length",value:"40 weeks from last menstrual period",detail:"This is an estimate, not medical advice. A clinician or ultrasound may provide a different date."})}
+case"hoursconvert":{const h=g(i,"amount");return R({label:"Minutes",value:n(h*60)},{label:"Seconds",value:n(h*3600)},{label:"Milliseconds",value:n(h*3600000,0)})}
+case"storageconvert":{const gb=g(i,"amount");return R({label:"Megabytes",value:n(gb*1000)},{label:"Kilobytes",value:n(gb*1_000_000,0)},{label:"Bytes",value:n(gb*1_000_000_000,0),detail:"Uses decimal SI units (1 GB = 1,000,000,000 bytes)."})}
+case"lengthconvert":{const m=g(i,"amount");return R({label:"Centimetres",value:n(m*100)+" cm"},{label:"Kilometres",value:n(m/1000)+" km"},{label:"Feet",value:n(m*3.280839895)+" ft"},{label:"Inches",value:n(m*39.37007874)+" in"})}
+case"weightconvert":{const kg=g(i,"amount");return R({label:"Grams",value:n(kg*1000)+" g"},{label:"Pounds",value:n(kg*2.20462262)+" lb"},{label:"Ounces",value:n(kg*35.27396195)+" oz"})}
 default:return R({label:"Result",value:"Calculator formula not available."})}}
 export function calculateDefinition(definition:CalculatorDefinition,input:Inputs){return calculate(definition.kind,input)}
