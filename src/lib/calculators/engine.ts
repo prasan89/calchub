@@ -101,5 +101,9 @@ case"storageconvert":{const gb=g(i,"amount");return R({label:"Megabytes",value:n
 case"lengthconvert":{const m=g(i,"amount");return R({label:"Centimetres",value:n(m*100)+" cm"},{label:"Kilometres",value:n(m/1000)+" km"},{label:"Feet",value:n(m*3.280839895)+" ft"},{label:"Inches",value:n(m*39.37007874)+" in"})}
 case"weightconvert":{const kg=g(i,"amount");return R({label:"Grams",value:n(kg*1000)+" g"},{label:"Pounds",value:n(kg*2.20462262)+" lb"},{label:"Ounces",value:n(kg*35.27396195)+" oz"})}
 case"loan":return R({label:"Use the loan calculator above",value:"Rendered by custom component."});
+case"mortgage":case"autoloan":case"retirement":case"investment":case"savings":case"cd":case"studentloan":case"budget":case"debtpayoff":case"commission":case"depreciation":
+  return R({label:"Use the calculator above",value:"Rendered by custom component."});
+case"gpa":case"grade":case"ovulation":case"period":case"scientific":case"timecalc":case"sqft":case"btu":
+  return R({label:"Use the calculator above",value:"Rendered by custom component."});
 default:return R({label:"Result",value:"Calculator formula not available."})}}
 export function calculateDefinition(definition:CalculatorDefinition,input:Inputs,cur:Currency=IN){return calculate(definition.kind,input,cur)}

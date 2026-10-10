@@ -22,6 +22,25 @@ import SpeedCalculator from "@/components/SpeedCalculator";
 import PythagoreanCalculator from "@/components/PythagoreanCalculator";
 import StandardDeviationCalculator from "@/components/StandardDeviationCalculator";
 import IncomeTaxCalculator from "@/components/IncomeTaxCalculator";
+import SavingsCalculator from "@/components/SavingsCalculator";
+import SquareFootageCalculator from "@/components/SquareFootageCalculator";
+import MortgageCalculator from "@/components/MortgageCalculator";
+import AutoLoanCalculator from "@/components/AutoLoanCalculator";
+import RetirementCalculator from "@/components/RetirementCalculator";
+import InvestmentCalculator from "@/components/InvestmentCalculator";
+import CdCalculator from "@/components/CdCalculator";
+import StudentLoanCalculator from "@/components/StudentLoanCalculator";
+import GpaCalculator from "@/components/GpaCalculator";
+import GradeCalculator from "@/components/GradeCalculator";
+import BudgetCalculator from "@/components/BudgetCalculator";
+import DebtPayoffCalculator from "@/components/DebtPayoffCalculator";
+import CommissionCalculator from "@/components/CommissionCalculator";
+import DepreciationCalculator from "@/components/DepreciationCalculator";
+import OvulationCalculator from "@/components/OvulationCalculator";
+import PeriodCalculator from "@/components/PeriodCalculator";
+import ScientificCalculator from "@/components/ScientificCalculator";
+import TimeCalculator from "@/components/TimeCalculator";
+import BtuCalculator from "@/components/BtuCalculator";
 
 // Custom components that handle currency themselves via prop
 type CustomProps={calculator:CalculatorDefinition;currency:Currency};
@@ -50,6 +69,28 @@ const CUSTOM:Partial<Record<string,CustomComp>>={
   "standard-deviation-calculator":StandardDeviationCalculator as CustomComp,
   "mean-median-mode-calculator":StandardDeviationCalculator as CustomComp,
   "income-tax-calculator":IncomeTaxCalculator as CustomComp,
+  "savings-goal-calculator":SavingsCalculator as CustomComp,
+  "fixed-deposit-calculator":SavingsCalculator as CustomComp,
+  "recurring-deposit-calculator":SavingsCalculator as CustomComp,
+  "square-footage-calculator":SquareFootageCalculator as CustomComp,
+  "mortgage-calculator":MortgageCalculator as CustomComp,
+  "auto-loan-calculator":AutoLoanCalculator as CustomComp,
+  "retirement-calculator":RetirementCalculator as CustomComp,
+  "investment-calculator":InvestmentCalculator as CustomComp,
+  "savings-calculator":SavingsCalculator as CustomComp,
+  "cd-calculator":CdCalculator as CustomComp,
+  "student-loan-calculator":StudentLoanCalculator as CustomComp,
+  "gpa-calculator":GpaCalculator as CustomComp,
+  "grade-calculator":GradeCalculator as CustomComp,
+  "budget-calculator":BudgetCalculator as CustomComp,
+  "debt-payoff-calculator":DebtPayoffCalculator as CustomComp,
+  "commission-calculator":CommissionCalculator as CustomComp,
+  "depreciation-calculator":DepreciationCalculator as CustomComp,
+  "ovulation-calculator":OvulationCalculator as CustomComp,
+  "period-calculator":PeriodCalculator as CustomComp,
+  "scientific-calculator":ScientificCalculator as CustomComp,
+  "time-calculator":TimeCalculator as CustomComp,
+  "btu-calculator":BtuCalculator as CustomComp,
 };
 
 // India-only slugs — no country switcher shown
@@ -58,11 +99,18 @@ const INDIA_ONLY=new Set([
   "gratuity-calculator","hra-exemption-calculator","income-tax-calculator",
 ]);
 
+// Slugs where the country switcher is irrelevant (no currency shown)
+const NO_SWITCHER=new Set([
+  "gpa-calculator","grade-calculator",
+  "ovulation-calculator","period-calculator",
+  "scientific-calculator","time-calculator",
+]);
+
 export default function CalculatorShell({calculator}:{calculator:CalculatorDefinition}){
   const [country,setCountry]=useState<"india"|"usa">("usa");
   const currency:Currency=country==="usa"?US:IN;
   const Custom=CUSTOM[calculator.slug];
-  const showSwitcher=!INDIA_ONLY.has(calculator.slug);
+  const showSwitcher=!INDIA_ONLY.has(calculator.slug)&&!NO_SWITCHER.has(calculator.slug);
 
   return(
     <>
