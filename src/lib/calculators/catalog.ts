@@ -14,7 +14,7 @@ const seeds:Seed[]=[
 ["recurring-deposit-calculator","Recurring Deposit Calculator","Financial","sip","Estimate maturity from monthly deposits."],
 ["gst-calculator","GST Calculator","Financial","gst","Add GST and view tax amount separately."],
 ["discount-calculator","Discount Calculator","Financial","discount","Calculate sale price and savings after a discount."],
-["income-tax-calculator","Income Tax Estimator","Financial","tax","Explore an illustrative tax estimate, not official tax advice."],
+["income-tax-calculator","Income Tax Calculator","Financial","tax","Calculate Indian income tax under New or Old Regime with full slab breakdown, deductions, surcharge, and cess."],
 ["salary-hike-calculator","Salary Hike Calculator","Financial","salary","Calculate salary increases and revised compensation."],
 ["cagr-calculator","CAGR Calculator","Financial","cagr","Calculate compound annual growth between two values."],
 ["roi-calculator","ROI Calculator","Financial","roi","Measure investment return as an amount and percentage."],
