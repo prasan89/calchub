@@ -63,7 +63,6 @@ const seeds:Seed[]=[
 ["combination-calculator","Combination Calculator","Math","combination","Calculate unordered selections from a set."],
 ["gcd-lcm-calculator","GCD and LCM Calculator","Math","gcd","Calculate greatest common divisor and least common multiple."],
 ["quadratic-equation-calculator","Quadratic Equation Calculator","Math","quadratic","Solve a quadratic equation."],
-["speed-distance-time-calculator","Speed Distance Time Calculator","Math","speed","Calculate average speed from distance and time."],
 ["age-calculator","Age Calculator","Everyday","age","Estimate age from birth year."],
 ["date-difference-calculator","Date Difference Calculator","Everyday","datediff","Calculate days from a reference date to today."],
 ["days-between-dates-calculator","Days Between Dates Calculator","Everyday","datediff","Count days from a selected date to today."],
