@@ -68,53 +68,50 @@ const ids: Record<string, string> = {
 
 export default function HomePage() {
   return (
-    <div className="site-shell">
+    <div className="page-with-sidebar">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{__html: JSON.stringify(websiteJsonLd)}}
       />
 
-      <div style={{display: "flex", gap: 32, alignItems: "flex-start", paddingTop: 28}}>
-        {/* Main content */}
-        <div style={{flex: 1, minWidth: 0}}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "end",
-              gap: 15,
-              marginBottom: 20,
-              flexWrap: "wrap",
-            }}
-          >
-            <div>
-              <div className="eyebrow">Browse the library</div>
-              <h1 style={{fontSize: 32, fontWeight: 900, margin: "8px 0 0"}}>
-                All calculators
-              </h1>
-            </div>
-            <p style={{fontSize: 13, color: "var(--muted)"}}>
-              {calculators.length} calculators · {categories.length} categories
-            </p>
+      {/* Main content */}
+      <div className="main-col">
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "end",
+            gap: 15,
+            marginBottom: 20,
+            flexWrap: "wrap",
+          }}
+        >
+          <div>
+            <div className="eyebrow">Browse the library</div>
+            <h1 style={{fontSize: 32, fontWeight: 900, margin: "8px 0 0"}}>
+              All calculators
+            </h1>
           </div>
-
-          <CalculatorDirectory />
-
-          {/* About blurb */}
-          <section style={{paddingBlock: 40, maxWidth: 800}}>
-            <h2 style={{fontSize: 22, fontWeight: 850}}>
-              Free online calculators for every decision
-            </h2>
-            <p style={{lineHeight: 1.8, color: "var(--muted)", fontSize: 15}}>
-              Use our mortgage calculator, EMI calculator, income tax calculator, BMI calculator, and compound interest calculator — plus 90 more tools for your money, health, studies and everyday plans. All results stay in your browser. No sign-up required.
-            </p>
-          </section>
+          <p style={{fontSize: 13, color: "var(--muted)"}}>
+            {calculators.length} calculators · {categories.length} categories
+          </p>
         </div>
 
-        {/* Ad sidebar — hidden on small screens */}
-        <div style={{display: "var(--sidebar-display, block)"}}>
-          <AdSidebar />
-        </div>
+        <CalculatorDirectory />
+
+        <section style={{paddingBlock: 40, maxWidth: 800}}>
+          <h2 style={{fontSize: 22, fontWeight: 850}}>
+            Free online calculators for every decision
+          </h2>
+          <p style={{lineHeight: 1.8, color: "var(--muted)", fontSize: 15}}>
+            Use our mortgage calculator, EMI calculator, income tax calculator, BMI calculator, and compound interest calculator — plus 90 more tools for your money, health, studies and everyday plans. All results stay in your browser. No sign-up required.
+          </p>
+        </section>
+      </div>
+
+      {/* Ad sidebar */}
+      <div className="ad-col">
+        <AdSidebar />
       </div>
     </div>
   );

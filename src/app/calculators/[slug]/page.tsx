@@ -122,10 +122,9 @@ export default async function CalculatorPage({
   }
 
   return (
-    <div className="site-shell" style={{ paddingTop: 28 }}>
-      <div style={{ display: "flex", gap: 32, alignItems: "flex-start" }}>
-        {/* Main content */}
-        <article style={{ flex: 1, minWidth: 0 }}>
+    <div className="page-with-sidebar">
+      {/* Main content */}
+      <article className="main-col">
           {/* Breadcrumb */}
           <nav
             aria-label="Breadcrumb"
@@ -310,10 +309,9 @@ export default async function CalculatorPage({
         </article>
 
         {/* Ad sidebar */}
-        <div className="ad-sidebar">
+        <div className="ad-col">
           <AdSidebar />
         </div>
-      </div>
     </div>
   );
 }
