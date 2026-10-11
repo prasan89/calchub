@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { calculators, getCalculator } from "@/lib/calculators/catalog";
 import CalculatorCard from "@/components/CalculatorCard";
 import CalculatorShell from "@/components/CalculatorShell";
+import AdSidebar from "@/components/AdSidebar";
 import { calcSEO } from "@/lib/calculators/seo";
 import type { CalcSEO } from "@/lib/calculators/seo";
 
@@ -121,15 +122,18 @@ export default async function CalculatorPage({
   }
 
   return (
-    <article className="site-shell" style={{ paddingTop: 35 }}>
-      {/* Breadcrumb */}
-      <nav
-        aria-label="Breadcrumb"
-        style={{ fontSize: 13, color: "var(--muted)", marginBottom: 24 }}
-      >
-        <Link href="/">Home</Link> / {c.category} /{" "}
-        <span style={{ color: "var(--ink)" }}>{c.name}</span>
-      </nav>
+    <div className="site-shell" style={{ paddingTop: 28 }}>
+      <div style={{ display: "flex", gap: 32, alignItems: "flex-start" }}>
+        {/* Main content */}
+        <article style={{ flex: 1, minWidth: 0 }}>
+          {/* Breadcrumb */}
+          <nav
+            aria-label="Breadcrumb"
+            style={{ fontSize: 13, color: "var(--muted)", marginBottom: 24 }}
+          >
+            <Link href="/">Home</Link> / {c.category} /{" "}
+            <span style={{ color: "var(--ink)" }}>{c.name}</span>
+          </nav>
 
       {/* Hero */}
       <div style={{ maxWidth: 820, marginBottom: 27 }}>
@@ -303,6 +307,13 @@ export default async function CalculatorPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemas) }}
       />
-    </article>
+        </article>
+
+        {/* Ad sidebar */}
+        <div className="ad-sidebar">
+          <AdSidebar />
+        </div>
+      </div>
+    </div>
   );
 }

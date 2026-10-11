@@ -1,6 +1,7 @@
 import type {Metadata} from "next";
 import {calculators, categories} from "@/lib/calculators/catalog";
 import CalculatorDirectory from "@/components/CalculatorDirectory";
+import AdSidebar from "@/components/AdSidebar";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://calchub.io";
 
@@ -73,84 +74,48 @@ export default function HomePage() {
         dangerouslySetInnerHTML={{__html: JSON.stringify(websiteJsonLd)}}
       />
 
-      {/* Directory header */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "end",
-          gap: 15,
-          marginBottom: 20,
-          flexWrap: "wrap",
-        }}
-      >
-        <div>
-          <div className="eyebrow">Browse the library</div>
-          <h2 style={{fontSize: 32, fontWeight: 900, margin: "8px 0 0"}}>
-            All calculators
-          </h2>
-        </div>
-        <p style={{fontSize: 13, color: "var(--muted)"}}>
-          {calculators.length} calculators · {categories.length} categories
-        </p>
-      </div>
-
-      <CalculatorDirectory />
-
-      {/* Trust stats */}
-      <section
-        style={{
-          paddingBlock: 48,
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,200px),1fr))",
-          gap: 20,
-          marginTop: 8,
-        }}
-      >
-        {[
-          {stat: "92 Calculators", detail: "Finance, health, math & more"},
-          {stat: "0 Sign-ups Required", detail: "Open and free to use"},
-          {stat: "India and USA Support", detail: "Localised results for both"},
-        ].map(({stat, detail}) => (
+      <div style={{display: "flex", gap: 32, alignItems: "flex-start", paddingTop: 28}}>
+        {/* Main content */}
+        <div style={{flex: 1, minWidth: 0}}>
           <div
-            key={stat}
-            className="surface"
             style={{
-              padding: "28px 24px",
-              borderRadius: 16,
-              textAlign: "center",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "end",
+              gap: 15,
+              marginBottom: 20,
+              flexWrap: "wrap",
             }}
           >
-            <div
-              style={{
-                fontSize: "clamp(1.4rem,3vw,2rem)",
-                fontWeight: 900,
-                color: "var(--accent)",
-                lineHeight: 1.1,
-              }}
-            >
-              {stat}
+            <div>
+              <div className="eyebrow">Browse the library</div>
+              <h1 style={{fontSize: 32, fontWeight: 900, margin: "8px 0 0"}}>
+                All calculators
+              </h1>
             </div>
-            <div
-              style={{fontSize: 14, color: "var(--muted)", marginTop: 8}}
-            >
-              {detail}
-            </div>
+            <p style={{fontSize: 13, color: "var(--muted)"}}>
+              {calculators.length} calculators · {categories.length} categories
+            </p>
           </div>
-        ))}
-      </section>
 
-      {/* About blurb */}
-      <section style={{paddingBlock: 55, maxWidth: 800}}>
-        <h2 style={{fontSize: 26, fontWeight: 850}}>
-          Calculators that are clear and practical
-        </h2>
-        <p style={{lineHeight: 1.8, color: "var(--muted)"}}>
-          CalcHub helps you explore scenarios quickly. Results are estimates
-          based on assumptions entered. Confirm important financial, tax and
-          health decisions with official sources or qualified professionals.
-        </p>
-      </section>
+          <CalculatorDirectory />
+
+          {/* About blurb */}
+          <section style={{paddingBlock: 40, maxWidth: 800}}>
+            <h2 style={{fontSize: 22, fontWeight: 850}}>
+              Free online calculators for every decision
+            </h2>
+            <p style={{lineHeight: 1.8, color: "var(--muted)", fontSize: 15}}>
+              Use our mortgage calculator, EMI calculator, income tax calculator, BMI calculator, and compound interest calculator — plus 90 more tools for your money, health, studies and everyday plans. All results stay in your browser. No sign-up required.
+            </p>
+          </section>
+        </div>
+
+        {/* Ad sidebar — hidden on small screens */}
+        <div style={{display: "var(--sidebar-display, block)"}}>
+          <AdSidebar />
+        </div>
+      </div>
     </div>
   );
 }
